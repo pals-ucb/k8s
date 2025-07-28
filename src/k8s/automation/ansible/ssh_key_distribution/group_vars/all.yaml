@@ -1,0 +1,4 @@
+ssh_user: pals
+ssh_key_name: pals_network_access_ecdsa
+ssh_key_dir: "{{ playbook_dir }}/generated_keys"
+

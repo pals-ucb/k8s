@@ -1,0 +1,7 @@
+{% for host in groups['ssh_nodes'] %}
+Host {{ host }}
+    HostName {{ host }}
+    User {{ ssh_user }}
+    IdentityFile ~/.ssh/{{ ssh_key_name }}
+{% endfor %}
+

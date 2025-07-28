@@ -1,0 +1,35 @@
+# tasks file for roles/base-setup
+---
+- name: Disable UFW if running
+  ansible.builtin.service:
+    name: ufw
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: Disable firewalld if running
+  ansible.builtin.service:
+    name: firewalld
+    state: stopped
+    enabled: false
+  when: ansible_facts.services['firewalld'] is defined
+
+- name: Enable IPv4 forwarding
+  ansible.builtin.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: yes
+
+- name: Ensure br_netfilter module is loaded
+  ansible.builtin.modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Enable bridge-nf-call-iptables
+  ansible.builtin.sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: 1
+    sysctl_set: yes
+    reload: yes
+

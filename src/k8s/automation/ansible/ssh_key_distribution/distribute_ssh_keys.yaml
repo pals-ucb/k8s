@@ -1,0 +1,45 @@
+- name: Distribute SSH keys and ssh_config to remote nodes
+  hosts: ssh_nodes
+  gather_facts: no
+  vars_files:
+    - group_vars/all.yml
+
+  tasks:
+    - name: Ensure ~/.ssh directory exists
+      file:
+        path: "/home/{{ ssh_user }}/.ssh"
+        state: directory
+        mode: '0700'
+        owner: "{{ ssh_user }}"
+        group: "{{ ssh_user }}"
+
+    - name: Copy private key
+      copy:
+        src: "{{ ssh_key_dir }}/{{ ssh_key_name }}"
+        dest: "/home/{{ ssh_user }}/.ssh/{{ ssh_key_name }}"
+        owner: "{{ ssh_user }}"
+        group: "{{ ssh_user }}"
+        mode: '0600'
+
+    - name: Copy public key
+      copy:
+        src: "{{ ssh_key_dir }}/{{ ssh_key_name }}.pub"
+        dest: "/home/{{ ssh_user }}/.ssh/{{ ssh_key_name }}.pub"
+        owner: "{{ ssh_user }}"
+        group: "{{ ssh_user }}"
+        mode: '0644'
+
+    - name: Add public key to authorized_keys
+      authorized_key:
+        user: "{{ ssh_user }}"
+        key: "{{ lookup('file', ssh_key_dir + '/' + ssh_key_name + '.pub') }}"
+        state: present
+
+    - name: Deploy .ssh/config for intra-node access
+      template:
+        src: ssh_config_template.j2
+        dest: "/home/{{ ssh_user }}/.ssh/config"
+        owner: "{{ ssh_user }}"
+        group: "{{ ssh_user }}"
+        mode: '0600'
+

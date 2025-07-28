@@ -1,0 +1,12 @@
+---
+- name: Base setup for all nodes
+  hosts: all
+  become: yes
+  roles:
+    - base-setup
+
+- name: Kubernetes prerequisites
+  hosts: all
+  become: true
+  roles:
+    - k8s-prereqs
