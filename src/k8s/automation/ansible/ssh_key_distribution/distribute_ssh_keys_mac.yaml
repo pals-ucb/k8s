@@ -1,0 +1,14 @@
+- name: Generate SSH config file on Mac
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+    - group_vars/all.yml
+
+  tasks:
+    - name: Render ssh config file
+      template:
+        src: ssh_config_template_mac.j2
+        dest: "{{ lookup('env', 'HOME') }}/.ssh/config"
+        mode: '0600'
+

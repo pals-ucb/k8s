@@ -1,0 +1,7 @@
+{% for host in groups['mac_nodes'] %}
+Host {{ host }}
+    HostName {{ host }}
+    User {{ ssh_user }}
+    IdentityFile {{ ssh_key_dir }}/{{ ssh_key_name }}
+{% endfor %}
+

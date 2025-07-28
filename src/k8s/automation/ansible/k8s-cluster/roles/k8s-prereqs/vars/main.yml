@@ -1,0 +1,5 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for roles/k8s-prereqs
+
+k8s_version: "v1.33"  # Can be overridden via --extra-vars
