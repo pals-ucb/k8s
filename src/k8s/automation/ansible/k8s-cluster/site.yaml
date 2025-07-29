@@ -17,3 +17,10 @@
   roles:
     - k8s-control-plane
 
+- name: Join Kubernetes worker nodes to the cluster
+  hosts: workers
+  become: true
+  roles:
+    - k8s-worker-nodes
+
+

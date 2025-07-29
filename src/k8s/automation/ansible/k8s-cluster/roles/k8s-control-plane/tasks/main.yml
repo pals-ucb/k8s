@@ -24,13 +24,43 @@
     group: "{{ ansible_user }}"
     mode: '0644'
 
-- name: Generate kubeadm join command
-  ansible.builtin.command: kubeadm token create --print-join-command
-  register: join_cmd
-  changed_when: false
+- name: Delete existing kubeadm token (force regeneration)
+  ansible.builtin.shell: kubeadm token list | awk 'NR>1 {print $1}' | xargs -r kubeadm token delete
+  when: force_kubeadm_token | default(false)
 
-- name: Save join command to file
-  ansible.builtin.copy:
-    dest: /tmp/kubeadm_join_cmd.sh
-    content: "{{ join_cmd.stdout }}"
-    mode: '0755'
+- name: Delete old join script if forcing regeneration
+  ansible.builtin.file:
+    path: "{{ join_script_path }}"
+    state: absent
+  when: force_kubeadm_token | default(false)
+
+- name: Check if a kubeadm token already exists
+  ansible.builtin.shell: kubeadm token list | grep 'authentication,signing'
+  register: existing_token
+  changed_when: false
+  failed_when: false
+
+- name: Generate kubeadm join command if no valid token exists
+  ansible.builtin.shell: kubeadm token create --ttl {{ kubeadm_token_ttl }} --print-join-command > "{{ join_script_path }}" 
+  when: existing_token.stdout_lines | length == 0
+  register: kubeadm_join_cmd
+
+- name: Check if join script exists
+  ansible.builtin.stat:
+    path: "{{ join_script_path }}"
+  register: join_script_stat
+
+- name: Set permissions on join script
+  ansible.builtin.file:
+    path: "{{ join_script_path }}"
+    owner: root
+    group: root
+    mode: '0700'
+  when: join_script_stat.stat.exists
+
+- name: Copy join command to Ansible controller (optional)
+  ansible.builtin.fetch:
+    src: "{{ join_script_path }}"
+    dest: join_commands/{{ inventory_hostname }}_join.sh
+    flat: yes
+  when: fetch_join_command | default(false)

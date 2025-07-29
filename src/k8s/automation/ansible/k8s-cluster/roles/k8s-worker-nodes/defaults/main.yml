@@ -1,0 +1,4 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/worker-nodes
+join_script_path: /root/kubeadm_join.sh

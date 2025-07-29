@@ -1,0 +1,41 @@
+# tasks file for roles/worker-nodes
+---
+- name: Wait for join script to be created on control-plane
+  ansible.builtin.wait_for:
+    path: "{{ join_script_path }}"
+    state: present
+    timeout: 60
+  delegate_to: "{{ groups['control-plane'][0] }}"
+  run_once: true
+
+- name: Slurp join script from control-plane
+  ansible.builtin.slurp:
+    src: "{{ join_script_path }}"
+  delegate_to: "{{ groups['control-plane'][0] }}"
+  register: join_script
+  run_once: true
+
+- name: Copy join script to worker node
+  ansible.builtin.copy:
+    content: "{{ join_script['content'] | b64decode }}"
+    dest: "{{ join_script_path }}"
+    mode: '0500'
+
+- name: Ensure shebang and executable permission on join script
+  block:
+    - name: Prepend shebang to join script
+      ansible.builtin.shell: |
+        sed -i '1i #!/bin/bash' {{ join_script_path }}
+      args:
+        executable: /bin/bash
+
+    - name: Ensure join script is executable
+      ansible.builtin.file:
+        path: "{{ join_script_path }}"
+        mode: '0755'
+        state: file
+
+
+- name: Run kubeadm join
+  ansible.builtin.command:  "{{ join_script_path }}"
+  become: true

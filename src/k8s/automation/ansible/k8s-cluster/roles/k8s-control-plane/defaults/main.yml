@@ -2,4 +2,7 @@
 ---
 pod_network_cidr: "10.20.0.0/16"  
 ansible_user: pals
+kubeadm_token_ttl: 3600s
+force_kubeadm_token: true
+join_script_path: /root/kubeadm_join.sh
 
