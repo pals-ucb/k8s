@@ -1,0 +1,5 @@
+# defaults file for roles/k8s-control-plane
+---
+pod_network_cidr: "10.20.0.0/16"  
+ansible_user: pals
+

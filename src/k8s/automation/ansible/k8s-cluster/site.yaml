@@ -10,3 +10,10 @@
   become: true
   roles:
     - k8s-prereqs
+
+- name: Setup Kubernetes control plane
+  hosts: control-plane
+  become: true
+  roles:
+    - k8s-control-plane
+
