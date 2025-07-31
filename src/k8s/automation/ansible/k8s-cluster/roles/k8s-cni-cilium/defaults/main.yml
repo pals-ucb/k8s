@@ -1,0 +1,31 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/k8s-cni-cilium
+# roles/k8s-cni-cilium/defaults/main.yml
+cilium_namespace: kube-system
+cilium_helm_repo: https://helm.cilium.io/
+cilium_helm_chart: cilium
+cilium_helm_version: 1.15.3  # Use the latest tested version
+cilium_chart_version: "1.15.5"
+cilium_values:
+  tunnel: vxlan
+  encryption:
+    enabled: true
+    type: wireguard
+  kubeProxyReplacement: strict
+  k8sRequiresReplicatingToAllNodes: true
+  enableHostFirewall: true
+  enableL7Proxy: true
+  ipam:
+    mode: kubernetes
+  operator:
+    enabled: true
+    replicas: 1
+  hubble:
+    enabled: true
+    relay:
+      enabled: true
+    ui:
+      enabled: true
+  debug:
+    enabled: false

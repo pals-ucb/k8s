@@ -23,4 +23,16 @@
   roles:
     - k8s-worker-nodes
 
+- name: Setup Helm
+  hosts: all
+  become: true
+  roles:
+    - k8s-helm-base-setup
+
+- name: Install Cilium CNI plugin
+  hosts: control-plane
+  become: yes
+  roles:
+    - k8s-cni-cilium
+
 

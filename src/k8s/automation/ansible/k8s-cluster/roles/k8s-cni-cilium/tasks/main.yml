@@ -1,0 +1,23 @@
+---
+# roles/k8s-cni-cilium/tasks/main.yml
+
+- name: Add Cilium Helm repo
+  kubernetes.core.helm_repository:
+    name: cilium
+    repo_url: https://helm.cilium.io
+  tags: ["cni"]
+
+- name: Deploy Cilium with Helm
+  kubernetes.core.helm:
+    release_name: cilium
+    chart_ref: cilium/cilium
+    release_namespace: kube-system
+    release_state: present
+    chart_version: "{{ cilium_chart_version }}"
+    release_values: "{{ cilium_values }}"
+    wait: true
+    update_repo_cache: true
+  tags: ["cni"]
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+

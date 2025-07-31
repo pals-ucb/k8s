@@ -1,8 +1,16 @@
 # defaults file for roles/k8s-control-plane
 ---
-pod_network_cidr: "10.20.0.0/16"  
 ansible_user: pals
 kubeadm_token_ttl: 3600s
 force_kubeadm_token: true
 join_script_path: /root/kubeadm_join.sh
 
+k8s_version: "v1.33.0"        # Your chosen Kubernetes version
+kube_apiserver_ip: "192.168.0.30"   # IP address only
+kube_apiserver_port: 6443
+# Use this to create the full endpoint
+kube_control_plane_endpoint: "{{ kube_apiserver_ip }}:{{ kube_apiserver_port }}"
+pod_network_cidr: "10.20.0.0/16"
+service_cluster_ip_range: "10.120.0.0/16"
+
+# Add other relevant settings here as needed
