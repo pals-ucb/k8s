@@ -1,0 +1,33 @@
+# tasks file for roles/k8s-reset
+# Run this pb  as  following, but be careful as this might wipe your
+# cluster
+#  ansible-playbook reset_cluster.yaml -e '{"confirm_reset": true}' --ask-become-pass
+- name: Debug confirm_reset value
+  ansible.builtin.debug:
+    var: confirm_reset
+
+- name: Fail if reset is not explicitly confirmed
+  ansible.builtin.fail:
+    msg: >
+      You must set `confirm_reset` to true to run this destructive operation.
+  when: confirm_reset | default(false) != true
+
+- name: Reset Kubernetes
+  ansible.builtin.shell: |
+    kubeadm reset --force
+    systemctl stop kubelet
+    systemctl stop containerd
+    rm -rf /etc/cni/net.d /var/lib/cni /var/lib/kubelet/* /etc/kubernetes /var/lib/etcd ~/.kube
+    ip link delete cilium_health || true
+    ip link delete cilium_net || true
+    ip link delete cilium_vxlan || true
+    iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+  become: yes
+
+
+- name: Remove residual CNI interfaces
+  ansible.builtin.shell: |
+    ip link delete cni0 || true
+    ip link delete flannel.1 || true
+    ip link delete docker0 || true
+  become: true

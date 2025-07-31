@@ -1,0 +1,8 @@
+# reset-cluster.yaml
+- name: Danger! Reset Kubernetes on all nodes
+  hosts: all
+  become: true
+  vars:
+    confirm_reset: false  # must be overridden with -e to proceed
+  roles:
+    - k8s-reset
